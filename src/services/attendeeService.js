@@ -12,6 +12,7 @@ export const attendeeService = {
 
   async joinEvent(eventId) {
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
     const { error } = await supabase
       .from('event_attendees')
       .insert({ event_id: eventId, profile_id: user.id })
@@ -24,6 +25,7 @@ export const attendeeService = {
 
   async leaveEvent(eventId) {
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
     const { error } = await supabase
       .from('event_attendees')
       .delete()
@@ -34,6 +36,7 @@ export const attendeeService = {
 
   async isAttending(eventId) {
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return false
     const { data } = await supabase
       .from('event_attendees')
       .select('profile_id')

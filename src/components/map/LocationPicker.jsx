@@ -30,8 +30,12 @@ export default function LocationPicker({ onLocationSelect }) {
 
   const pick = useCallback(async (lat, lng) => {
     setMarker({ lat, lng })
-    const name = await geocodingService.reverseGeocode(lat, lng)
-    onLocationSelect({ lat, lng, locationName: name })
+    try {
+      const name = await geocodingService.reverseGeocode(lat, lng)
+      onLocationSelect({ lat, lng, locationName: name })
+    } catch {
+      onLocationSelect({ lat, lng, locationName: `${lat.toFixed(5)}, ${lng.toFixed(5)}` })
+    }
   }, [onLocationSelect])
 
   const handleSearchChange = (e) => {

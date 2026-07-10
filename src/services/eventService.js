@@ -16,7 +16,7 @@ export const eventService = {
   async getEventById(id) {
     const { data, error } = await supabase
       .from('events_with_counts')
-      .select('*, profiles!creator_id(*)')
+      .select('*')
       .eq('id', id)
       .single()
     if (error) throw error
@@ -25,6 +25,7 @@ export const eventService = {
 
   async createEvent({ title, description, lat, lng, locationName, startsAt, endsAt, minAgeMonths, maxAgeMonths, maxAttendees }) {
     const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
     const { data, error } = await supabase
       .from('events')
       .insert({

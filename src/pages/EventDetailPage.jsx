@@ -32,8 +32,8 @@ export default function EventDetailPage() {
         await attendeeService.leaveEvent(id)
         show('You left the event', 'info')
       } else {
-        await attendeeService.joinEvent(id)
-        show("You're going! 🎉", 'success')
+        const { alreadyJoined } = await attendeeService.joinEvent(id)
+        show(alreadyJoined ? "You're already going!" : "You're going! 🎉", alreadyJoined ? 'info' : 'success')
       }
       await refetch()
     } catch {

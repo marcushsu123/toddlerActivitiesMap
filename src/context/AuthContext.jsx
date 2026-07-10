@@ -8,16 +8,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    authService.getSession().then((s) => {
-      setSession(s)
-      setLoading(false)
-    })
-
     const unsubscribe = authService.onAuthStateChange((s) => {
       setSession(s)
       setLoading(false)
     })
-
     return unsubscribe
   }, [])
 
