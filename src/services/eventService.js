@@ -45,6 +45,9 @@ export const eventService = {
       .select()
       .single()
     if (error) throw error
+
+    await supabase.from('event_attendees').insert({ event_id: data.id, profile_id: user.id })
+
     return data
   },
 
