@@ -59,21 +59,28 @@ export default function EventDetailPage() {
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location_name)}`
 
+  const langs = event.languages ?? (event.language ? [event.language] : [])
+
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       <button onClick={() => navigate(-1)} className="text-sm text-muted hover:text-app-text mb-4 flex items-center gap-1">
         ← Back
       </button>
 
+      {event.image_url && (
+        <img src={event.image_url} alt={event.title} className="w-full h-52 object-cover rounded-2xl mb-4" />
+      )}
+
       <h1 className="font-display text-2xl font-bold text-app-text leading-snug">{event.title}</h1>
 
       <div className="flex flex-wrap gap-2 mt-3">
         <Badge>{formatAgeRange(event.min_age_months, event.max_age_months)}</Badge>
-        {event.language && (
-          <Badge color="gray" title={LANGUAGES.find(l => l.code === event.language)?.name}>
-            {languageFlag(event.language)} {LANGUAGES.find(l => l.code === event.language)?.name ?? event.language}
-          </Badge>
-        )}
+        {langs.map((code) => {
+          const lang = LANGUAGES.find((l) => l.code === code)
+          return lang ? (
+            <Badge key={code} color="gray">{lang.flag} {lang.name}</Badge>
+          ) : null
+        })}
         {event.attendee_count != null && (
           <Badge color="gray">{event.attendee_count}{event.max_attendees ? `/${event.max_attendees}` : ''} going</Badge>
         )}

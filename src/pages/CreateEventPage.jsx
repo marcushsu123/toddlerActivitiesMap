@@ -1,6 +1,7 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState, useRef, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { eventService } from '../services/eventService'
+import { storageService } from '../services/storageService'
 import { useToast } from '../context/ToastContext'
 import { LANGUAGES } from '../utils/constants'
 import Input from '../components/ui/Input'
@@ -17,10 +18,13 @@ export default function CreateEventPage() {
   const { show } = useToast()
   const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const fileInputRef = useRef(null)
   const [form, setForm] = useState({
     title: '',
     description: '',
-    language: 'en',
+    languages: ['en'],
     lat: null,
     lng: null,
     locationName: '',
@@ -34,6 +38,19 @@ export default function CreateEventPage() {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const setVal = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
+  const toggleLanguage = (code) => setForm((f) => {
+    const has = f.languages.includes(code)
+    const next = has ? f.languages.filter((c) => c !== code) : [...f.languages, code]
+    return { ...f, languages: next.length ? next : [code] }
+  })
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
   const canAdvance = () => {
     if (step === 0) return form.title.trim().length >= 3
     if (step === 1) return form.lat !== null && form.lng !== null
@@ -43,8 +60,11 @@ export default function CreateEventPage() {
   const submit = async () => {
     setSubmitting(true)
     try {
+      let imageUrl = null
+      if (imageFile) imageUrl = await storageService.uploadEventImage(imageFile)
       const event = await eventService.createEvent({
         ...form,
+        imageUrl,
         maxAttendees: form.maxAttendees ? parseInt(form.maxAttendees, 10) : null,
         minAgeMonths: parseInt(form.minAgeMonths, 10),
         maxAgeMonths: parseInt(form.maxAgeMonths, 10),
@@ -88,15 +108,15 @@ export default function CreateEventPage() {
               placeholder="Tell parents what to expect — activities, what to bring, etc."
             />
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-app-text">Language spoken</label>
+              <label className="text-sm font-medium text-app-text">Languages spoken <span className="text-muted font-normal">(select all that apply)</span></label>
               <div className="grid grid-cols-3 gap-2">
                 {LANGUAGES.map((l) => (
                   <button
                     key={l.code}
                     type="button"
-                    onClick={() => setVal('language', l.code)}
+                    onClick={() => toggleLanguage(l.code)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors ${
-                      form.language === l.code
+                      form.languages.includes(l.code)
                         ? 'border-accent bg-accent/10 text-accent font-medium'
                         : 'border-border bg-surface text-app-text hover:border-accent/50'
                     }`}
@@ -106,6 +126,36 @@ export default function CreateEventPage() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-app-text">Cover photo <span className="text-muted font-normal">(optional)</span></label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+              {imagePreview ? (
+                <div className="relative rounded-xl overflow-hidden border border-border">
+                  <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setImageFile(null); setImagePreview(null) }}
+                    className="absolute top-2 right-2 bg-black/50 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm hover:bg-black/70"
+                  >✕</button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current.click()}
+                  className="flex flex-col items-center justify-center gap-2 h-28 rounded-xl border-2 border-dashed border-border text-muted hover:border-accent/50 hover:text-accent transition-colors"
+                >
+                  <span className="text-2xl">📷</span>
+                  <span className="text-sm">Tap to add a photo</span>
+                </button>
+              )}
             </div>
           </>
         )}
