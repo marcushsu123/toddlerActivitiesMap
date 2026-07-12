@@ -78,7 +78,7 @@ export default function EventDetailPage() {
         {langs.map((code) => {
           const lang = LANGUAGES.find((l) => l.code === code)
           return lang ? (
-            <Badge key={code} color="gray">{lang.flag} {lang.name}</Badge>
+            <Badge key={code} color="gray">{lang.name}</Badge>
           ) : null
         })}
         {event.attendee_count != null && (

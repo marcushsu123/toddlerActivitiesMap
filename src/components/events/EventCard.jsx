@@ -26,12 +26,7 @@ export default function EventCard({ event }) {
           </span>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-app-text leading-snug truncate">
-            {nonEnglish.length > 0 && (
-              <span className="mr-1.5">{nonEnglish.map(languageFlag).join('')}</span>
-            )}
-            {event.title}
-          </h3>
+          <h3 className="font-semibold text-app-text leading-snug truncate">{event.title}</h3>
           <p className="text-xs text-muted mt-0.5 truncate">{event.location_name}</p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             <Badge>{formatAgeRange(event.min_age_months, event.max_age_months)}</Badge>
