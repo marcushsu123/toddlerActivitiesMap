@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext'
 import { attendeeService } from '../services/attendeeService'
 import { eventService } from '../services/eventService'
 import { formatEventDate, formatAgeRange } from '../utils/dateHelpers'
+import { languageFlag, LANGUAGES } from '../utils/constants'
 import AttendeeList from '../components/events/AttendeeList'
 import Badge from '../components/ui/Badge'
 import Button from '../components/ui/Button'
@@ -68,6 +69,11 @@ export default function EventDetailPage() {
 
       <div className="flex flex-wrap gap-2 mt-3">
         <Badge>{formatAgeRange(event.min_age_months, event.max_age_months)}</Badge>
+        {event.language && (
+          <Badge color="gray" title={LANGUAGES.find(l => l.code === event.language)?.name}>
+            {languageFlag(event.language)} {LANGUAGES.find(l => l.code === event.language)?.name ?? event.language}
+          </Badge>
+        )}
         {event.attendee_count != null && (
           <Badge color="gray">{event.attendee_count}{event.max_attendees ? `/${event.max_attendees}` : ''} going</Badge>
         )}

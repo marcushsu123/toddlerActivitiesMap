@@ -23,7 +23,7 @@ export const eventService = {
     return data
   },
 
-  async createEvent({ title, description, lat, lng, locationName, startsAt, endsAt, minAgeMonths, maxAgeMonths, maxAttendees }) {
+  async createEvent({ title, description, language, lat, lng, locationName, startsAt, endsAt, minAgeMonths, maxAgeMonths, maxAttendees }) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
     const { data, error } = await supabase
@@ -32,6 +32,7 @@ export const eventService = {
         creator_id: user.id,
         title,
         description,
+        language,
         location: toPostGISPoint(lat, lng),
         location_name: locationName,
         starts_at: startsAt,

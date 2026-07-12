@@ -2,6 +2,7 @@ import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { eventService } from '../services/eventService'
 import { useToast } from '../context/ToastContext'
+import { LANGUAGES } from '../utils/constants'
 import Input from '../components/ui/Input'
 import Textarea from '../components/ui/Textarea'
 import Button from '../components/ui/Button'
@@ -19,6 +20,7 @@ export default function CreateEventPage() {
   const [form, setForm] = useState({
     title: '',
     description: '',
+    language: 'en',
     lat: null,
     lng: null,
     locationName: '',
@@ -85,6 +87,26 @@ export default function CreateEventPage() {
               maxLength={1000}
               placeholder="Tell parents what to expect — activities, what to bring, etc."
             />
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-app-text">Language spoken</label>
+              <div className="grid grid-cols-3 gap-2">
+                {LANGUAGES.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => setVal('language', l.code)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors ${
+                      form.language === l.code
+                        ? 'border-accent bg-accent/10 text-accent font-medium'
+                        : 'border-border bg-surface text-app-text hover:border-accent/50'
+                    }`}
+                  >
+                    <span className="text-base">{l.flag}</span>
+                    <span className="truncate">{l.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </>
         )}
 
