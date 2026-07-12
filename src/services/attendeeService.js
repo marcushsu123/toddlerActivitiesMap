@@ -49,19 +49,29 @@ export const attendeeService = {
   async getAttendedEvents() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
-    const { data, error } = await supabase
-      .from('event_attendees')
-      .select('joined_at, events(*)')
-      .eq('profile_id', user.id)
-    if (error) throw error
+
+    const [attendingRes, createdRes] = await Promise.all([
+      supabase.from('event_attendees').select('events(*)').eq('profile_id', user.id),
+      supabase.from('events').select('*').eq('creator_id', user.id),
+    ])
+    if (attendingRes.error) throw attendingRes.error
+    if (createdRes.error) throw createdRes.error
+
+    const seen = new Set()
+    const all = [
+      ...(attendingRes.data ?? []).map(r => r.events).filter(Boolean),
+      ...(createdRes.data ?? []),
+    ].filter(ev => {
+      if (!ev?.id || seen.has(ev.id)) return false
+      seen.add(ev.id)
+      return true
+    })
+
     const now = new Date().toISOString()
-    const events = (data ?? [])
-      .map(row => ({ ...row.events, joined_at: row.joined_at }))
-      .filter(ev => ev?.starts_at)
-    const upcoming = events
+    const upcoming = all
       .filter(ev => ev.starts_at >= now)
       .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))
-    const past = events
+    const past = all
       .filter(ev => ev.starts_at < now)
       .sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at))
     return { upcoming, past }
