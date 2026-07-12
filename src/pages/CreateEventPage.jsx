@@ -121,7 +121,6 @@ export default function CreateEventPage() {
                         : 'border-border bg-surface text-app-text hover:border-accent/50'
                     }`}
                   >
-                    <span className="text-base">{l.flag}</span>
                     <span className="truncate">{l.name}</span>
                   </button>
                 ))}
