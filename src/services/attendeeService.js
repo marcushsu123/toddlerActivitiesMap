@@ -45,4 +45,25 @@ export const attendeeService = {
       .maybeSingle()
     return !!data
   },
+
+  async getAttendedEvents() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+    const { data, error } = await supabase
+      .from('event_attendees')
+      .select('joined_at, events(*)')
+      .eq('profile_id', user.id)
+    if (error) throw error
+    const now = new Date().toISOString()
+    const events = (data ?? [])
+      .map(row => ({ ...row.events, joined_at: row.joined_at }))
+      .filter(ev => ev?.starts_at)
+    const upcoming = events
+      .filter(ev => ev.starts_at >= now)
+      .sort((a, b) => new Date(a.starts_at) - new Date(b.starts_at))
+    const past = events
+      .filter(ev => ev.starts_at < now)
+      .sort((a, b) => new Date(b.starts_at) - new Date(a.starts_at))
+    return { upcoming, past }
+  },
 }
