@@ -101,20 +101,18 @@ export default function EventDetailPage() {
         <p className="mt-4 text-sm text-app-text leading-relaxed">{event.description}</p>
       )}
 
-      {!isCreator && (
-        <Button
-          onClick={handleJoin}
-          variant={isAttending ? 'secondary' : 'primary'}
-          disabled={actioning || (isFull && !isAttending)}
-          className="w-full mt-6"
-          size="lg"
-        >
-          {actioning ? <Spinner size="sm" /> : isAttending ? 'Leave event' : isFull ? 'Event full' : 'Join this playdate'}
-        </Button>
-      )}
+      <Button
+        onClick={handleJoin}
+        variant={isAttending ? 'secondary' : 'primary'}
+        disabled={actioning || (isFull && !isAttending)}
+        className="w-full mt-6"
+        size="lg"
+      >
+        {actioning ? <Spinner size="sm" /> : isAttending ? 'Leave event' : isFull ? 'Event full' : 'Join this playdate'}
+      </Button>
 
       {isCreator && (
-        <Button onClick={handleCancel} variant="danger" disabled={actioning} className="w-full mt-6" size="lg">
+        <Button onClick={handleCancel} variant="danger" disabled={actioning} className="w-full mt-4" size="lg">
           {actioning ? <Spinner size="sm" /> : 'Cancel event'}
         </Button>
       )}
